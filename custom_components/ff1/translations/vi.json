@@ -111,5 +111,45 @@
         "name": "Khởi động lại"
       }
     }
+  },
+  "services": {
+    "show_playlist": {
+      "name": "Trưng bày một danh sách",
+      "description": "Trưng bày một danh sách: URL của danh sách đã ký, hoặc danh sách DP-1 do ff1_playlist tạo.",
+      "fields": {
+        "request": {
+          "name": "Yêu cầu",
+          "description": "playlistUrl hoặc dp1_call."
+        }
+      }
+    },
+    "rotate": {
+      "name": "Xoay màn hình",
+      "description": "Xoay hình một phần tư vòng.",
+      "fields": {
+        "clockwise": {
+          "name": "Theo chiều kim đồng hồ",
+          "description": "Tắt để xoay ngược lại."
+        }
+      }
+    },
+    "set_sleep_schedule": {
+      "name": "Đặt lịch ngủ",
+      "description": "Khi nào màn hình tự tắt và tự bật lại.",
+      "fields": {
+        "enabled": {
+          "name": "Bật",
+          "description": "Lịch có chạy hay không."
+        },
+        "sleep_time": {
+          "name": "Giờ ngủ",
+          "description": "HH:MM"
+        },
+        "wake_time": {
+          "name": "Giờ thức",
+          "description": "HH:MM"
+        }
+      }
+    }
   }
 }

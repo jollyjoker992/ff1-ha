@@ -14,13 +14,13 @@ from datetime import datetime
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from ff1_lan import (Cache, Device, Ff1Client, Ff1Error, LanClosed, Locked, MediaHealth, Metrics, Panel, Player,
-                     Status, Unreachable)
+from ff1_lan import (Cache, Device, Ff1Client, Ff1Error, LanClosed, Locked, MediaHealth, Metrics, NotAllowed, Panel,
+                     Player, Status, Unreachable)
 
 from .const import (CONF_HOST, CONF_PORT, DEFAULT_PORT, DOMAIN, RECONNECT_MAX, RECONNECT_MIN, SLOW_EVERY,
                     UPDATE_EVERY)
@@ -143,6 +143,8 @@ class Ff1Coordinator(DataUpdateCoordinator[Ff1Data]):
         """Run one control and read the device again; a refusal reaches the person who asked."""
         try:
             await call
+        except NotAllowed as e:
+            raise ServiceValidationError(f"The FF1 integration does not send that: {e}") from e
         except Ff1Error as e:
             raise HomeAssistantError(f"The FF1 refused: {type(e).__name__} ({e})") from e
         await self.async_refresh()

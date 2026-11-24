@@ -111,5 +111,45 @@
         "name": "Restart"
       }
     }
+  },
+  "services": {
+    "show_playlist": {
+      "name": "Show a playlist",
+      "description": "Display a playlist: a signed playlist's URL, or a DP-1 playlist built by ff1_playlist.",
+      "fields": {
+        "request": {
+          "name": "Request",
+          "description": "playlistUrl or dp1_call."
+        }
+      }
+    },
+    "rotate": {
+      "name": "Rotate the screen",
+      "description": "Turn the picture a quarter turn.",
+      "fields": {
+        "clockwise": {
+          "name": "Clockwise",
+          "description": "Off turns it the other way."
+        }
+      }
+    },
+    "set_sleep_schedule": {
+      "name": "Set the sleep schedule",
+      "description": "When the screen goes dark and comes back by itself.",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether the schedule runs."
+        },
+        "sleep_time": {
+          "name": "Sleep time",
+          "description": "HH:MM"
+        },
+        "wake_time": {
+          "name": "Wake time",
+          "description": "HH:MM"
+        }
+      }
+    }
   }
 }

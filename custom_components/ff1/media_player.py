@@ -1,13 +1,24 @@
 """The FF1 as a media player: what is on screen, volume, sleep and wake, the next and previous work.
 
 There is no pause on an FF1 (the player has none). "Off" is the device's sleep mode: a dark screen, the
-computer still on and answering; "on" wakes it. Neither is a power switch."""
+computer still on and answering; "on" wakes it. Neither is a power switch.
+
+Three services of this integration, on the same entity, for what a media player has no word for:
+
+    ff1.show_playlist       request: {"playlistUrl": https…} or {"dp1_call": <DP-1 playlist>} (what ff1_playlist builds)
+    ff1.rotate              clockwise: true | false (a quarter turn)
+    ff1.set_sleep_schedule  enabled, and optionally sleep_time, wake_time ("HH:MM")
+
+Each is checked by the SDK before it is sent (`Ff1Client.show_playlist`, `set_sleep_schedule`)."""
 
 from __future__ import annotations
 
 from homeassistant.components.media_player import (MediaPlayerDeviceClass, MediaPlayerEntity,
                                                    MediaPlayerEntityFeature, MediaPlayerState, MediaType)
+import voluptuous as vol
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import Ff1ConfigEntry
@@ -16,6 +27,12 @@ from .entity import Ff1Entity
 
 async def async_setup_entry(hass: HomeAssistant, entry: Ff1ConfigEntry, add: AddEntitiesCallback) -> None:
     add([Ff1Player(entry.runtime_data, "player")])
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service("show_playlist", {vol.Required("request"): dict}, "async_show_playlist")
+    platform.async_register_entity_service("rotate", {vol.Optional("clockwise", default=True): cv.boolean}, "async_rotate")
+    platform.async_register_entity_service(
+        "set_sleep_schedule", {vol.Required("enabled"): cv.boolean, vol.Optional("sleep_time"): cv.string,
+                               vol.Optional("wake_time"): cv.string}, "async_set_sleep_schedule")
 
 
 class Ff1Player(Ff1Entity, MediaPlayerEntity):
@@ -88,3 +105,13 @@ class Ff1Player(Ff1Entity, MediaPlayerEntity):
 
     async def async_media_previous_track(self) -> None:
         await self.coordinator.act(self.coordinator.client.step(-1))
+
+    async def async_show_playlist(self, request: dict) -> None:
+        await self.coordinator.act(self.coordinator.client.show_playlist(request))
+
+    async def async_rotate(self, clockwise: bool = True) -> None:
+        await self.coordinator.act(self.coordinator.client.rotate(clockwise))
+
+    async def async_set_sleep_schedule(self, enabled: bool, sleep_time: str | None = None,
+                                       wake_time: str | None = None) -> None:
+        await self.coordinator.act(self.coordinator.client.set_sleep_schedule(enabled, sleep_time, wake_time))

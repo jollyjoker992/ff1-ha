@@ -1,0 +1,36 @@
+show_playlist:
+  target:
+    entity:
+      integration: ff1
+      domain: media_player
+  fields:
+    request:
+      required: true
+      selector:
+        object:
+rotate:
+  target:
+    entity:
+      integration: ff1
+      domain: media_player
+  fields:
+    clockwise:
+      default: true
+      selector:
+        boolean:
+set_sleep_schedule:
+  target:
+    entity:
+      integration: ff1
+      domain: media_player
+  fields:
+    enabled:
+      required: true
+      selector:
+        boolean:
+    sleep_time:
+      selector:
+        text:
+    wake_time:
+      selector:
+        text:

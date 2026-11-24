@@ -7,7 +7,7 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.ff1.const import DOMAIN
@@ -161,3 +161,25 @@ async def test_an_unreachable_device_retries(hass: HomeAssistant, ff1):
     entry.add_to_hass(hass)
     assert not await hass.config_entries.async_setup(entry.entry_id)
     assert entry.state is ConfigEntryState.SETUP_RETRY
+
+
+async def test_the_integrations_own_services(hass: HomeAssistant, ff1):
+    await _setup(hass, ff1)
+    mp = {"entity_id": f"media_player.{P}_player"}
+    doc = {"dpVersion": "1.1.0", "title": "t", "items": [{"source": "https://art.example/1", "duration": 60}]}
+    await hass.services.async_call(DOMAIN, "show_playlist", {**mp, "request": {"dp1_call": doc}}, blocking=True)
+    assert ("displayPlaylist", {"dp1_call": doc}) in ff1.calls
+    await hass.services.async_call(DOMAIN, "rotate", {**mp, "clockwise": False}, blocking=True)
+    assert ("rotate", {"clockwise": False}) in ff1.calls
+    await hass.services.async_call(DOMAIN, "set_sleep_schedule", {**mp, "enabled": True, "sleep_time": "23:00",
+                                                                  "wake_time": "07:15"}, blocking=True)
+    assert ("setSleepSchedule", {"enabled": True, "sleepTime": "23:00", "wakeTime": "07:15"}) in ff1.calls
+    sent = len(ff1.calls)
+    for bad in ({"dp1_call": {"items": [{"source": "http://plain.example/1"}]}},
+                {"dp1_call": {"items": [{"source": "https://a.example/1"}], "dynamicQuery": {}}},
+                {"playlistUrl": "file:///etc/passwd"}, {}):
+        with pytest.raises(ServiceValidationError):
+            await hass.services.async_call(DOMAIN, "show_playlist", {**mp, "request": bad}, blocking=True)
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(DOMAIN, "set_sleep_schedule", {**mp, "enabled": True, "sleep_time": "25:99"}, blocking=True)
+    assert [c for c, _ in ff1.calls[sent:] if c in ("displayPlaylist", "setSleepSchedule")] == []

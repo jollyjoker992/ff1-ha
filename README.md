@@ -104,6 +104,8 @@ What it gives, per FF1 (entity ids are fixed: `<platform>.<device id>_<key>`, as
   screen failed to render).
 - **numbers**: the screen's brightness, contrast and volume over DDC, for what the panel answers.
 - **switch**: the sleep schedule. **buttons**: reload artwork, default playlist, restart.
+- **services** on the media player: `ff1.show_playlist` (a signed playlist's URL or a DP-1 playlist from the
+  builder), `ff1.rotate`, `ff1.set_sleep_schedule` (on or off, sleep and wake times).
 
 It listens to the device's notification socket, so a new work or a volume change shows at once, and polls
 every minute as the safety net (the slow reads every ten). When the owner closes LAN control in the Feral
