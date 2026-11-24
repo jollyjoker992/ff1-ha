@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Feral File FF1",
+        "description": "Địa chỉ của FF1 trong mạng nhà. Không cần đăng nhập: tích hợp này làm được đúng những gì một điện thoại cùng Wi-Fi làm được, không hơn.",
+        "data": {
+          "host": "Địa chỉ",
+          "port": "Cổng"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Không có FF1 nào trả lời ở địa chỉ này.",
+      "invalid_host": "Chỉ địa chỉ hoặc tên máy, không có http:// hay đường dẫn.",
+      "not_local": "FF1 có trả lời nhưng không coi Home Assistant là cùng mạng."
+    },
+    "abort": {
+      "already_configured": "FF1 này đã được thêm rồi."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "now_showing": {
+        "name": "Đang trưng bày"
+      },
+      "firmware": {
+        "name": "Phiên bản"
+      },
+      "cpu_temperature": {
+        "name": "Nhiệt độ CPU"
+      },
+      "gpu_temperature": {
+        "name": "Nhiệt độ GPU"
+      },
+      "memory_used": {
+        "name": "Bộ nhớ đã dùng"
+      },
+      "disk_used": {
+        "name": "Đĩa đã dùng"
+      },
+      "wifi_signal": {
+        "name": "Sóng Wi-Fi"
+      },
+      "cache_used": {
+        "name": "Bộ đệm tác phẩm đã dùng"
+      },
+      "works_needing_attention": {
+        "name": "Tác phẩm cần xem lại"
+      },
+      "outages_24h": {
+        "name": "Số lần mất mạng trong 24 giờ"
+      },
+      "last_outage": {
+        "name": "Lần mất mạng gần nhất"
+      },
+      "last_boot": {
+        "name": "Lần khởi động gần nhất"
+      },
+      "next_sleep_change": {
+        "name": "Lần ngủ hoặc thức kế tiếp"
+      },
+      "orientation": {
+        "name": "Hướng màn hình"
+      }
+    },
+    "binary_sensor": {
+      "internet": {
+        "name": "Internet"
+      },
+      "relay": {
+        "name": "Kết nối điều khiển từ xa"
+      },
+      "lan_control": {
+        "name": "Điều khiển từ mạng nhà"
+      },
+      "sleeping": {
+        "name": "Đang ngủ"
+      },
+      "update_available": {
+        "name": "Bản cập nhật"
+      },
+      "media_problem": {
+        "name": "Tác phẩm lỗi"
+      }
+    },
+    "number": {
+      "panel_brightness": {
+        "name": "Độ sáng màn hình"
+      },
+      "panel_contrast": {
+        "name": "Độ tương phản màn hình"
+      },
+      "panel_volume": {
+        "name": "Âm lượng màn hình"
+      }
+    },
+    "switch": {
+      "sleep_schedule": {
+        "name": "Lịch ngủ"
+      }
+    },
+    "button": {
+      "refresh_artwork": {
+        "name": "Tải lại tác phẩm"
+      },
+      "default_playlist": {
+        "name": "Danh sách mặc định"
+      },
+      "reboot": {
+        "name": "Khởi động lại"
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Feral File FF1",
+        "description": "The FF1's address on the home network. It asks no login: this integration can do what any phone on the same Wi-Fi can, and nothing that is the owner's alone.",
+        "data": {
+          "host": "Address",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No FF1 answers at this address.",
+      "invalid_host": "An address or a host name, without http:// or a path.",
+      "not_local": "The FF1 answers, but does not see Home Assistant as being on its own network."
+    },
+    "abort": {
+      "already_configured": "This FF1 is already set up."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "now_showing": {
+        "name": "Now showing"
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "cpu_temperature": {
+        "name": "CPU temperature"
+      },
+      "gpu_temperature": {
+        "name": "GPU temperature"
+      },
+      "memory_used": {
+        "name": "Memory used"
+      },
+      "disk_used": {
+        "name": "Disk used"
+      },
+      "wifi_signal": {
+        "name": "Wi-Fi signal"
+      },
+      "cache_used": {
+        "name": "Artwork cache used"
+      },
+      "works_needing_attention": {
+        "name": "Works needing attention"
+      },
+      "outages_24h": {
+        "name": "Network outages in 24 h"
+      },
+      "last_outage": {
+        "name": "Last network outage"
+      },
+      "last_boot": {
+        "name": "Last boot"
+      },
+      "next_sleep_change": {
+        "name": "Next sleep or wake"
+      },
+      "orientation": {
+        "name": "Orientation"
+      }
+    },
+    "binary_sensor": {
+      "internet": {
+        "name": "Internet"
+      },
+      "relay": {
+        "name": "Remote control relay"
+      },
+      "lan_control": {
+        "name": "Control from the home network"
+      },
+      "sleeping": {
+        "name": "Sleeping"
+      },
+      "update_available": {
+        "name": "Firmware update"
+      },
+      "media_problem": {
+        "name": "Artwork problem"
+      }
+    },
+    "number": {
+      "panel_brightness": {
+        "name": "Screen brightness"
+      },
+      "panel_contrast": {
+        "name": "Screen contrast"
+      },
+      "panel_volume": {
+        "name": "Screen volume"
+      }
+    },
+    "switch": {
+      "sleep_schedule": {
+        "name": "Sleep schedule"
+      }
+    },
+    "button": {
+      "refresh_artwork": {
+        "name": "Reload artwork"
+      },
+      "default_playlist": {
+        "name": "Default playlist"
+      },
+      "reboot": {
+        "name": "Restart"
+      }
+    }
+  }
+}

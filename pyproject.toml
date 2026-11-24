@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ff1-lan"
+version = "0.2.0"
+description = "The Feral File FF1 at home: a client of its LAN interface, a Home Assistant integration, and a DP-1 playlist builder"
+requires-python = ">=3.12"
+dependencies = ["aiohttp>=3.9"]
+
+[project.optional-dependencies]
+signing = ["cryptography>=42"]
+license = { text = "Proprietary" }
+
+[project.scripts]
+ff1-lan = "ff1_lan.__main__:main"
+ff1-playlist = "ff1_playlist.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests_ha"]

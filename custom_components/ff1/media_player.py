@@ -1,0 +1,90 @@
+"""The FF1 as a media player: what is on screen, volume, sleep and wake, the next and previous work.
+
+There is no pause on an FF1 (the player has none). "Off" is the device's sleep mode: a dark screen, the
+computer still on and answering; "on" wakes it. Neither is a power switch."""
+
+from __future__ import annotations
+
+from homeassistant.components.media_player import (MediaPlayerDeviceClass, MediaPlayerEntity,
+                                                   MediaPlayerEntityFeature, MediaPlayerState, MediaType)
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .coordinator import Ff1ConfigEntry
+from .entity import Ff1Entity
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: Ff1ConfigEntry, add: AddEntitiesCallback) -> None:
+    add([Ff1Player(entry.runtime_data, "player")])
+
+
+class Ff1Player(Ff1Entity, MediaPlayerEntity):
+    platform_name = "media_player"
+    needs_control = True
+    _attr_name = None
+    _attr_device_class = MediaPlayerDeviceClass.TV
+    _attr_media_content_type = MediaType.IMAGE
+    _attr_media_image_remotely_accessible = True
+    _attr_supported_features = (MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_MUTE
+                                | MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
+                                | MediaPlayerEntityFeature.NEXT_TRACK | MediaPlayerEntityFeature.PREVIOUS_TRACK)
+
+    @property
+    def state(self) -> MediaPlayerState | None:
+        if self.data.sleeping:
+            return MediaPlayerState.OFF
+        return MediaPlayerState.PLAYING if self.data.player and self.data.player.now else MediaPlayerState.IDLE
+
+    @property
+    def _now(self):
+        return self.data.player.now if self.data.player and not self.data.sleeping else None
+
+    @property
+    def media_title(self) -> str | None:
+        return self._now.title or None if self._now else None
+
+    @property
+    def media_artist(self) -> str | None:
+        return self._now.artist or None if self._now else None
+
+    @property
+    def media_image_url(self) -> str | None:
+        return self._now.thumbnail or None if self._now else None
+
+    @property
+    def media_content_id(self) -> str | None:
+        return self._now.id or None if self._now else None
+
+    @property
+    def volume_level(self) -> float | None:
+        v = self.data.device.volume if self.data.device else None
+        return v / 100 if v is not None else None
+
+    @property
+    def is_volume_muted(self) -> bool | None:
+        return self.data.device.muted if self.data.device else None
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        p = self.data.player
+        return {"position": p.index + 1 if p and p.index is not None else None, "works": len(p.works) if p else None,
+                "render": p.render if p else None}
+
+    async def async_set_volume_level(self, volume: float) -> None:
+        await self.coordinator.act(self.coordinator.client.set_volume(round(volume * 100)))
+
+    async def async_mute_volume(self, mute: bool) -> None:
+        if self.is_volume_muted is not mute:            # the device only toggles
+            await self.coordinator.act(self.coordinator.client.toggle_mute())
+
+    async def async_turn_off(self) -> None:
+        await self.coordinator.act(self.coordinator.client.sleep())
+
+    async def async_turn_on(self) -> None:
+        await self.coordinator.act(self.coordinator.client.wake())
+
+    async def async_media_next_track(self) -> None:
+        await self.coordinator.act(self.coordinator.client.step(+1))
+
+    async def async_media_previous_track(self) -> None:
+        await self.coordinator.act(self.coordinator.client.step(-1))
