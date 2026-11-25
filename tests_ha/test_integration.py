@@ -104,6 +104,13 @@ async def test_controls_reach_the_device(hass: HomeAssistant, ff1):
     assert ff1.panel["brightness"] == 70
     await call("switch", "turn_off", f"switch.{P}_sleep_schedule")
     assert ff1.schedule is False
+    await call("media_player", "shuffle_set", mp, shuffle=True)
+    await call("media_player", "repeat_set", mp, repeat="one")
+    assert (ff1.shuffle, ff1.loop) == (True, "one")
+    await hass.async_block_till_done()
+    assert (hass.states.get(mp).attributes["shuffle"], hass.states.get(mp).attributes["repeat"]) == (True, "one")
+    await call("media_player", "repeat_set", mp, repeat="all")
+    assert ff1.loop == "playlist"
     await call("button", "press", f"button.{P}_reboot")
     assert ff1.rebooted == 1
     sent = {c for c, _ in ff1.calls}
@@ -174,6 +181,13 @@ async def test_the_integrations_own_services(hass: HomeAssistant, ff1):
     await hass.services.async_call(DOMAIN, "set_sleep_schedule", {**mp, "enabled": True, "sleep_time": "23:00",
                                                                   "wake_time": "07:15"}, blocking=True)
     assert ("setSleepSchedule", {"enabled": True, "sleepTime": "23:00", "wakeTime": "07:15"}) in ff1.calls
+    await hass.services.async_call(DOMAIN, "set_work_duration", {**mp, "seconds": 600}, blocking=True)
+    await hass.services.async_call(DOMAIN, "set_framing", {**mp, "framing": "fill"}, blocking=True)
+    await hass.async_block_till_done()
+    attrs = hass.states.get(mp["entity_id"]).attributes
+    assert (ff1.work_seconds, ff1.framing, attrs["seconds_per_work"], attrs["framing"]) == (600, "fill", 600, "fill")
+    await hass.services.async_call(DOMAIN, "set_work_duration", {**mp, "seconds": 0}, blocking=True)
+    assert ff1.work_seconds is None
     sent = len(ff1.calls)
     for bad in ({"dp1_call": {"items": [{"source": "http://plain.example/1"}]}},
                 {"dp1_call": {"items": [{"source": "https://a.example/1"}], "dynamicQuery": {}}},
@@ -182,4 +196,8 @@ async def test_the_integrations_own_services(hass: HomeAssistant, ff1):
             await hass.services.async_call(DOMAIN, "show_playlist", {**mp, "request": bad}, blocking=True)
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(DOMAIN, "set_sleep_schedule", {**mp, "enabled": True, "sleep_time": "25:99"}, blocking=True)
-    assert [c for c, _ in ff1.calls[sent:] if c in ("displayPlaylist", "setSleepSchedule")] == []
+    for service, data in (("set_work_duration", {"seconds": 5}), ("set_framing", {"framing": "stretch"})):
+        with pytest.raises(ServiceValidationError):
+            await hass.services.async_call(DOMAIN, service, {**mp, **data}, blocking=True)
+    assert [c for c, _ in ff1.calls[sent:] if c in ("displayPlaylist", "setSleepSchedule", "updateDefaultDuration",
+                                                     "updateArtFraming")] == []

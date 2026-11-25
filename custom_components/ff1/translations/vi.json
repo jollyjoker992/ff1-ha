@@ -150,6 +150,26 @@
           "description": "HH:MM"
         }
       }
+    },
+    "set_work_duration": {
+      "name": "Đặt thời gian mỗi tác phẩm",
+      "description": "Mỗi tác phẩm hiển thị bao lâu, cho mọi danh sách, đến khi đổi lại.",
+      "fields": {
+        "seconds": {
+          "name": "Giây",
+          "description": "10 đến 86400; 0 hoặc để trống: theo thời gian của từng danh sách."
+        }
+      }
+    },
+    "set_framing": {
+      "name": "Đặt khung hình",
+      "description": "Hiện trọn tác phẩm có viền, hoặc cắt cho đầy màn hình.",
+      "fields": {
+        "framing": {
+          "name": "Khung hình",
+          "description": "fit hoặc fill."
+        }
+      }
     }
   }
 }

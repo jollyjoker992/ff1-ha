@@ -80,6 +80,21 @@ class Controls(Case):
         await self.client.set_sleep_schedule(True, "23:5", "6:30", ["mon", "tue"])
         self.assertEqual(self.ff1.calls[-1][1], {"enabled": True, "sleepTime": "23:05", "wakeTime": "06:30", "days": ["mon", "tue"]})
 
+    async def test_shuffle_loop_time_per_work_and_framing(self):
+        await self.client.set_shuffle(True)
+        await self.client.set_loop("one")
+        await self.client.set_work_seconds(600)
+        await self.client.set_framing("fill")
+        self.assertEqual(self.ff1.calls[-4:], [("setShuffle", {"enabled": True}), ("setLoop", {"mode": "one"}),
+                                               ("updateDefaultDuration", {"durationSeconds": 600}),
+                                               ("updateArtFraming", {"frameConfig": 1})])
+        p = await self.client.player()
+        self.assertEqual((p.shuffle, p.loop, p.work_seconds, p.framing), (True, "one", 600, "fill"))
+        await self.client.set_work_seconds(None)                 # back to each playlist's own timing
+        await self.client.set_framing("fit")
+        p = await self.client.player()
+        self.assertEqual((p.work_seconds, p.framing), (None, "fit"))
+
     async def test_step_wraps_round_the_playlist(self):
         self.assertEqual(await self.client.step(-1), 2)
         self.assertEqual(await self.client.step(+1), 0)
@@ -116,7 +131,10 @@ class Controls(Case):
                      lambda: self.client.set_sleep_schedule(True, days=[]),
                      lambda: self.client.show_playlist_url("http://plain.example/p"),
                      lambda: self.client.show_playlist_url("file:///etc/passwd"),
-                     lambda: self.client.play_recent("")):
+                     lambda: self.client.play_recent(""),
+                     lambda: self.client.set_shuffle("yes"), lambda: self.client.set_loop("all"),
+                     lambda: self.client.set_work_seconds(5), lambda: self.client.set_work_seconds(86401),
+                     lambda: self.client.set_work_seconds(60.5), lambda: self.client.set_framing("stretch")):
             with self.assertRaises(NotAllowed):
                 await call()
         self.assertEqual(self.ff1.calls, [])

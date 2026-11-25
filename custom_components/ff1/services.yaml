@@ -34,3 +34,28 @@ set_sleep_schedule:
     wake_time:
       selector:
         text:
+set_work_duration:
+  target:
+    entity:
+      integration: ff1
+      domain: media_player
+  fields:
+    seconds:
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: s
+set_framing:
+  target:
+    entity:
+      integration: ff1
+      domain: media_player
+  fields:
+    framing:
+      required: true
+      selector:
+        select:
+          options:
+            - fit
+            - fill

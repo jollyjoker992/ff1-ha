@@ -150,6 +150,26 @@
           "description": "HH:MM"
         }
       }
+    },
+    "set_work_duration": {
+      "name": "Set the time per work",
+      "description": "How long each work stays on screen, for every playlist, until changed.",
+      "fields": {
+        "seconds": {
+          "name": "Seconds",
+          "description": "10 to 86400; 0 or empty: each playlist's own timing."
+        }
+      }
+    },
+    "set_framing": {
+      "name": "Set the framing",
+      "description": "Show the whole work with borders, or crop it to fill the screen.",
+      "fields": {
+        "framing": {
+          "name": "Framing",
+          "description": "fit or fill."
+        }
+      }
     }
   }
 }

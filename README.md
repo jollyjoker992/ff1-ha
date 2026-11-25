@@ -94,8 +94,9 @@ address the device counts as local (a private address: a Docker bridge behind th
 What it gives, per FF1 (entity ids are fixed: `<platform>.<device id>_<key>`, as `sensor.ff1_abcd1234_now_showing`):
 
 - **media player** `…_player`: the work on screen (title, artist, picture), volume and mute, next and
-  previous work, "off" = the device's sleep mode (dark screen, still answering) and "on" = wake. No pause:
-  an FF1 has none.
+  previous work, shuffle, repeat (off / all / one = the FF1's loop none / playlist / one; a new playlist starts
+  again at all), "off" = the device's sleep mode (dark screen, still answering) and "on" = wake. No pause:
+  an FF1 has none. Its attributes also say the framing and the time per work.
 - **sensors**: now showing, firmware, CPU and GPU temperature, memory and disk used, Wi-Fi signal, artwork
   cache used, works needing attention (with which and why), network outages in 24 h and the last one, last
   boot, the next sleep or wake, orientation.
@@ -105,7 +106,8 @@ What it gives, per FF1 (entity ids are fixed: `<platform>.<device id>_<key>`, as
 - **numbers**: the screen's brightness, contrast and volume over DDC, for what the panel answers.
 - **switch**: the sleep schedule. **buttons**: reload artwork, default playlist, restart.
 - **services** on the media player: `ff1.show_playlist` (a signed playlist's URL or a DP-1 playlist from the
-  builder), `ff1.rotate`, `ff1.set_sleep_schedule` (on or off, sleep and wake times).
+  builder), `ff1.rotate`, `ff1.set_sleep_schedule` (on or off, sleep and wake times), `ff1.set_work_duration`
+  (seconds each work stays on screen, for every playlist; 0: each playlist's own), `ff1.set_framing` (fit or fill).
 
 It listens to the device's notification socket, so a new work or a volume change shows at once, and polls
 every minute as the safety net (the slow reads every ten). When the owner closes LAN control in the Feral

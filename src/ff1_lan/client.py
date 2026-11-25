@@ -37,10 +37,14 @@ READ = frozenset({"getDeviceStatus", "deviceMetrics", "checkStatus", "ddcPanelSt
 # Controls: each is undone by the next command or a wait (the device's own rule for its LAN-open set).
 CONTROL = frozenset({"setVolume", "toggleMute", "sleepNow", "wakeNow", "setSleepSchedule", "ddcPanelControl",
                      "rotate", "moveToArtwork", "playRecentlyPlayed", "displayDefaultPlaylist", "refreshArtwork",
-                     "displayPlaylist", "reboot"})
+                     "displayPlaylist", "reboot", "setShuffle", "setLoop", "updateDefaultDuration",
+                     "updateArtFraming"})
 NOTIFICATIONS = frozenset({"device_status", "player_status", "ddc_status", "offline_cache_status"})
 PANEL_ACTIONS = {"brightness": range(0, 101), "contrast": range(0, 101), "volume": range(0, 101),
                  "mute": ("on", "off"), "power": ("on", "standby", "off")}
+LOOP_MODES = ("none", "playlist", "one")      # stop at the end, the playlist again, the work on screen again
+FRAMINGS = ("fit", "fill")                    # the player's ArtFraming, in its order: frameConfig is the index
+WORK_SECONDS = (10, 86400)                    # how long each work may be set to stay on screen
 SLOW = {"runNetworkDiagnostics": 30, "ddcPanelStatus": 20, "ddcPanelControl": 20, "displayPlaylist": 30,
         "playRecentlyPlayed": 30, "displayDefaultPlaylist": 30}
 
@@ -270,6 +274,31 @@ class Ff1Client:
         if len(json.dumps(doc)) > 1 << 20:
             raise NotAllowed("the playlist is larger than 1 MiB")
         await self.cast("displayPlaylist", {"dp1_call": doc})
+
+    async def set_shuffle(self, enabled: bool) -> None:
+        """Mix the playlist on screen (the work showing stays first), or put its own order back."""
+        if not isinstance(enabled, bool):
+            raise NotAllowed("shuffle is true or false")
+        await self.cast("setShuffle", {"enabled": enabled})
+
+    async def set_loop(self, mode: str) -> None:
+        """At the end of the playlist: stop ("none"), start it again ("playlist", the default), or keep the work
+        on screen ("one"). A new playlist starts again from the default."""
+        if mode not in LOOP_MODES:
+            raise NotAllowed(f"loop is one of {', '.join(LOOP_MODES)}")
+        await self.cast("setLoop", {"mode": mode})
+
+    async def set_work_seconds(self, seconds: int | None) -> None:
+        """How long each work stays on screen, for every playlist, until changed; None: each playlist's own."""
+        if seconds is not None:
+            _between("seconds per work", seconds, *WORK_SECONDS)
+        await self.cast("updateDefaultDuration", {"durationSeconds": seconds})
+
+    async def set_framing(self, framing: str) -> None:
+        """The whole work with borders ("fit") or cropped to fill the screen ("fill")."""
+        if framing not in FRAMINGS:
+            raise NotAllowed(f"framing is one of {', '.join(FRAMINGS)}")
+        await self.cast("updateArtFraming", {"frameConfig": FRAMINGS.index(framing)})
 
     async def refresh(self) -> None:
         """Clear the browser cache and load the work on screen again."""

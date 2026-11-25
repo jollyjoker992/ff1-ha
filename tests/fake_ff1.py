@@ -44,6 +44,7 @@ class Ff1:
         self.busy = False
         self.sockets: list[web.WebSocketResponse] = []
         self.rebooted = 0
+        self.shuffle, self.loop, self.framing, self.work_seconds = False, "playlist", "fit", None
 
     # ---------- what it reports ----------
     def status(self) -> dict:
@@ -66,8 +67,10 @@ class Ff1:
 
     def player(self, notification: bool = False) -> dict:
         d = {"ok": True, "castCommand": "displayPlaylist", "index": self.index, "renderStatus": self.render,
-             "isPaused": False, "items": self.works, "loopMode": "playlist", "shuffle": False,
-             "contentContext": "curated", "deviceSettings": {"orientation": "landscape"}}
+             "isPaused": False, "items": self.works, "loopMode": self.loop, "shuffle": self.shuffle,
+             "contentContext": "curated", "deviceSettings": {"orientation": "landscape", "scaling": self.framing}}
+        if self.work_seconds is not None:
+            d["deviceSettings"]["defaultDuration"] = self.work_seconds
         if not notification:
             d["sleepMode"] = self.sleeping
         return d
@@ -183,6 +186,26 @@ class Ff1:
     async def _do_displayPlaylist(self, req):
         if "dead" in req.get("playlistUrl", ""):
             return web.Response(status=422, text="sourceUnreachable: no playlist item source is loadable")
+        return web.json_response({"message": {"ok": True}})
+
+    # the player's own handling (ff-player PlaybackSession, DisplaySettingsService)
+    async def _do_setShuffle(self, req):
+        self.shuffle = bool(req.get("enabled"))
+        return web.json_response({"message": {"ok": True}})
+
+    async def _do_setLoop(self, req):
+        self.loop = req["mode"] if req.get("mode") in ("none", "playlist", "one") else "playlist"
+        return web.json_response({"message": {"ok": True}})
+
+    async def _do_updateDefaultDuration(self, req):
+        raw = req.get("durationSeconds")
+        if raw is not None and (not isinstance(raw, (int, float)) or raw <= 0):
+            return web.json_response({"message": {"ok": False}})
+        self.work_seconds = raw
+        return web.json_response({"message": {"ok": True}})
+
+    async def _do_updateArtFraming(self, req):
+        self.framing = ("fit", "fill")[req["frameConfig"]]
         return web.json_response({"message": {"ok": True}})
 
     async def _do_reboot(self, req):

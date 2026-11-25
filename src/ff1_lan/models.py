@@ -194,6 +194,8 @@ class Player:
     loop: str = ""
     context: str = ""
     orientation: str = ""
+    framing: str = ""                         # fit, fill
+    work_seconds: int | None = None           # the device-wide time per work; None: each playlist's own
     overlay: str = ""                         # who paints over the art (setup, pairing), "" when nobody
 
     @property
@@ -212,6 +214,8 @@ class Player:
                    shuffle=d.get("shuffle") if isinstance(d.get("shuffle"), bool) else None,
                    loop=_str(d.get("loopMode")), context=_str(d.get("contentContext")),
                    orientation=_str(_dict(d.get("deviceSettings")).get("orientation")),
+                   framing=_str(_dict(d.get("deviceSettings")).get("scaling")),
+                   work_seconds=_int(_dict(d.get("deviceSettings")).get("defaultDuration")),
                    overlay=_str(overlay.get("owner")))
 
 
