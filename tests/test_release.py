@@ -22,7 +22,8 @@ class Release(unittest.TestCase):
         self.assertEqual(project["dependencies"], ["aiohttp>=3.9"])
         self.assertEqual(project["optional-dependencies"], {"signing": ["cryptography>=42"]})
         self.assertEqual(set(project["scripts"]), {"ff1-lan", "ff1-playlist"})
-        self.assertIn("text", project["license"])
+        self.assertEqual(project["license"], {"text": "MIT"})
+        self.assertIn("MIT License", (ROOT / "LICENSE").read_text())
 
     def test_translations_have_the_same_keys(self):
         def keys(d, prefix=""):

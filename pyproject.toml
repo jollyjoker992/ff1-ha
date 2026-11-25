@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ff1-lan"
-version = "0.3.0"
+version = "0.3.1"
 description = "The Feral File FF1 at home: a client of its LAN interface, a Home Assistant integration, and a DP-1 playlist builder"
 requires-python = ">=3.12"
 dependencies = ["aiohttp>=3.9"]
-license = { text = "Proprietary" }
+license = { text = "MIT" }
 
 [project.optional-dependencies]
 signing = ["cryptography>=42"]

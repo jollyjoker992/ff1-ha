@@ -123,3 +123,5 @@ python3.14 -m venv .venv-ha && .venv-ha/bin/pip install pytest-homeassistant-cus
 ```
 
 Unofficial: not made by Feral File. The LAN interface is the device's own, documented in its repository.
+
+MIT licensed: see `LICENSE`.
